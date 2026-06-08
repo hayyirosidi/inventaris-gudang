@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}InvenTrack - Sistem Manajemen Inventaris{% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    {% load static %}
+    <style>
+        :root {
+            --primary: #00D4AA;
+            --primary-dark: #00A888;
+            --accent: #FF6B35;
+            --bg-dark: #0A0E1A;
+            --bg-card: #111827;
+            --bg-card2: #1A2235;
+            --border: #1E2D45;
+            --text-primary: #E8EDF5;
+            --text-secondary: #7A8BA0;
+            --text-muted: #4A5568;
+            --danger: #FF4444;
+            --warning: #FFB800;
+            --success: #00D4AA;
+            --sidebar-w: 260px;
+        }
+
+        * { box-sizing: border-box; }
+        
+        body {
+            font-family: 'DM Mono', monospace;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0; top: 0; bottom: 0;
+            width: var(--sidebar-w);
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-brand {
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--border);
+            text-decoration: none;
+        }
+
+        .brand-logo {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 20px;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        .brand-sub {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 2px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 0;
+        }
+
+        .nav-section-title {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            padding: 12px 20px 6px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 400;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .sidebar-link:hover {
+            color: var(--text-primary);
+            background: var(--bg-card2);
+            border-left-color: var(--primary);
+        }
+
+        .sidebar-link.active {
+            color: var(--primary);
+            background: rgba(0, 212, 170, 0.08);
+            border-left-color: var(--primary);
+        }
+
+        .sidebar-link i {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid var(--border);
+            padding: 16px 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--bg-dark);
+            flex-shrink: 0;
+        }
+
+        .user-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .user-role {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Main content */
+        .main-content {
+            margin-left: var(--sidebar-w);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .page-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--text-primary);
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 28px;
+        }
+
+        /* Cards */
+        .card-dark {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), transparent);
+        }
+
+        .stat-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .stat-icon {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        /* Buttons */
+        .btn-primary-custom {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border: none;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary-custom:hover {
+            background: var(--primary-dark);
+            color: var(--bg-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-custom {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            padding: 7px 16px;
+            border-radius: 8px;
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-outline-custom:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-danger-custom {
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-danger-custom:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Tables */
+        .table-dark-custom {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table-dark-custom th {
+            background: var(--bg-card2);
+            color: var(--text-muted);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 12px 16px;
+            font-weight: 500;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table-dark-custom td {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid rgba(30, 45, 69, 0.5);
+            vertical-align: middle;
+        }
+
+        .table-dark-custom tr:hover td {
+            background: rgba(0, 212, 170, 0.03);
+            color: var(--text-primary);
+        }
+
+        .table-dark-custom tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Badges */
+        .badge-primary { background: rgba(0, 212, 170, 0.15); color: var(--primary); padding: 4px 10px; border-radius: 20px; font-size: 11px; }
+        .badge-warning { background: rgba(255, 184, 0, 0.15); color: var(--warning); padding: 4px 10px; border-radius: 20px; font-size: 11px; }
+        .badge-danger { background: rgba(255, 68, 68, 0.15); color: var(--danger); padding: 4px 10px; border-radius: 20px; font-size: 11px; }
+        .badge-secondary { background: rgba(122, 139, 160, 0.15); color: var(--text-secondary); padding: 4px 10px; border-radius: 20px; font-size: 11px; }
+        .badge-accent { background: rgba(255, 107, 53, 0.15); color: var(--accent); padding: 4px 10px; border-radius: 20px; font-size: 11px; }
+
+        /* Forms */
+        .form-control-dark {
+            background: var(--bg-card2);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            width: 100%;
+            transition: border-color 0.2s;
+        }
+
+        .form-control-dark:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
+            background: var(--bg-card2);
+            color: var(--text-primary);
+        }
+
+        .form-label-custom {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        /* Alerts */
+        .alert-custom {
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 13px;
+            border: 1px solid;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success-custom { background: rgba(0, 212, 170, 0.08); border-color: rgba(0, 212, 170, 0.3); color: var(--primary); }
+        .alert-danger-custom { background: rgba(255, 68, 68, 0.08); border-color: rgba(255, 68, 68, 0.3); color: var(--danger); }
+        .alert-warning-custom { background: rgba(255, 184, 0, 0.08); border-color: rgba(255, 184, 0, 0.3); color: var(--warning); }
+        .alert-info-custom { background: rgba(0, 120, 255, 0.08); border-color: rgba(0, 120, 255, 0.3); color: #4A9EFF; }
+
+        /* SKU/Code tags */
+        .sku-tag {
+            font-family: 'DM Mono', monospace;
+            background: var(--bg-card2);
+            border: 1px solid var(--border);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        /* Section header */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+
+        /* Mobile toggle */
+        .sidebar-toggle {
+            display: none;
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .sidebar-toggle { display: block; }
+            .content-area { padding: 16px; }
+        }
+
+        /* Override Bootstrap form controls */
+        .form-control, .form-select {
+            background: var(--bg-card2) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text-primary) !important;
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1) !important;
+            background: var(--bg-card2) !important;
+            color: var(--text-primary) !important;
+        }
+
+        select option {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        .form-check-input {
+            background-color: var(--bg-card2) !important;
+            border-color: var(--border) !important;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary) !important;
+            border-color: var(--primary) !important;
+        }
+
+        /* Pagination */
+        .page-link {
+            background: var(--bg-card2);
+            border-color: var(--border);
+            color: var(--text-secondary);
+        }
+
+        .page-link:hover {
+            background: var(--bg-card);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .page-item.active .page-link {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: var(--bg-dark);
+        }
+
+        /* Divider */
+        .divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 20px 0;
+        }
+
+        /* Reorder badge blink */
+        @keyframes pulse-badge {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .badge-blink { animation: pulse-badge 2s infinite; }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+    <a class="sidebar-brand" href="{% url 'dashboard:index' %}">
+        <div class="brand-logo">⬡ InvenTrack</div>
+        <div class="brand-sub">Sistem Manajemen Inventaris</div>
+    </a>
+
+    <div class="sidebar-nav">
+        {% if user.is_authenticated %}
+        <div class="nav-section-title">Utama</div>
+        <a href="{% url 'dashboard:index' %}" class="sidebar-link {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}">
+            <i class="bi bi-grid-1x2"></i> Dashboard
+        </a>
+
+        <div class="nav-section-title">Produk</div>
+        <a href="{% url 'products:product_list' %}" class="sidebar-link {% if request.resolver_match.app_name == 'products' %}active{% endif %}">
+            <i class="bi bi-box-seam"></i> Master Produk
+        </a>
+        <a href="{% url 'products:category_list' %}" class="sidebar-link">
+            <i class="bi bi-tag"></i> Kategori
+        </a>
+
+        <div class="nav-section-title">Inventaris</div>
+        <a href="{% url 'inventory:stock_in_list' %}" class="sidebar-link">
+            <i class="bi bi-box-arrow-in-down"></i> Barang Masuk
+        </a>
+        <a href="{% url 'inventory:stock_out_list' %}" class="sidebar-link">
+            <i class="bi bi-box-arrow-up"></i> Barang Keluar
+        </a>
+        <a href="{% url 'inventory:stock_opname_list' %}" class="sidebar-link">
+            <i class="bi bi-clipboard-check"></i> Stok Opname
+        </a>
+        <a href="{% url 'inventory:reorder_alert' %}" class="sidebar-link">
+            <i class="bi bi-bell"></i> Peringatan Reorder
+        </a>
+        <a href="{% url 'inventory:inventory_report' %}" class="sidebar-link">
+            <i class="bi bi-bar-chart-line"></i> Laporan
+        </a>
+
+        {% if user.profile.role == 'admin' or user.profile.role == 'staff' %}
+        <div class="nav-section-title">Gudang</div>
+        <a href="{% url 'warehouse:warehouse_list' %}" class="sidebar-link">
+            <i class="bi bi-building"></i> Gudang
+        </a>
+        <a href="{% url 'warehouse:rack_location_list' %}" class="sidebar-link">
+            <i class="bi bi-layout-three-columns"></i> Lokasi Rak
+        </a>
+        {% endif %}
+
+        <div class="nav-section-title">Akun</div>
+        <a href="{% url 'accounts:profile' %}" class="sidebar-link">
+            <i class="bi bi-person-circle"></i> Profil Saya
+        </a>
+        {% if user.profile.role == 'admin' %}
+        <a href="{% url 'accounts:register' %}" class="sidebar-link">
+            <i class="bi bi-person-plus"></i> Tambah User
+        </a>
+        {% endif %}
+        {% endif %}
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar">
+                {% if user.first_name %}{{ user.first_name|first|upper }}{% if user.last_name %}{{ user.last_name|first|upper }}{% endif %}
+                {% else %}{{ user.username|first|upper }}{% endif %}
+            </div>
+            <div>
+                <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                <div class="user-role">
+                    {% if user.profile.role == 'admin' %}Admin
+                    {% elif user.profile.role == 'staff' %}Staff
+                    {% else %}User{% endif %}
+                </div>
+            </div>
+            <a href="{% url 'accounts:logout' %}" class="ms-auto" title="Logout" style="color: var(--text-muted); text-decoration: none;">
+                <i class="bi bi-box-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</nav>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+        <div class="d-flex align-items-center gap-3">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="bi bi-list"></i>
+            </button>
+            <span class="page-title">{% block page_title %}InvenTrack{% endblock %}</span>
+        </div>
+        <div class="topbar-actions">
+            {% block topbar_actions %}{% endblock %}
+            {% if user.is_authenticated %}
+            <a href="{% url 'inventory:reorder_alert' %}" class="btn-outline-custom" style="border-color: transparent;">
+                <i class="bi bi-bell"></i>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content-area">
+        <!-- Messages -->
+        {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+            <div class="alert-custom 
+                {% if message.tags == 'success' %}alert-success-custom
+                {% elif message.tags == 'error' %}alert-danger-custom
+                {% elif message.tags == 'warning' %}alert-warning-custom
+                {% else %}alert-info-custom{% endif %} mb-2">
+                <i class="bi 
+                    {% if message.tags == 'success' %}bi-check-circle
+                    {% elif message.tags == 'error' %}bi-x-circle
+                    {% elif message.tags == 'warning' %}bi-exclamation-triangle
+                    {% else %}bi-info-circle{% endif %}"></i>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </div>
+</div>
+
+<!-- Overlay for mobile -->
+<div id="sidebar-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:999;" onclick="toggleSidebar()"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<script>
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    sidebar.classList.toggle('open');
+    overlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
+}
+
+// Mark active links
+document.querySelectorAll('.sidebar-link').forEach(link => {
+    if (link.href === window.location.href) {
+        link.classList.add('active');
+    }
+});
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
