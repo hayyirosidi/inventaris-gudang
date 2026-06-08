@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Tambah Lokasi Rak - InvenTrack{% endblock %}
+{% block page_title %}Tambah Lokasi Rak{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'warehouse:rack_location_list' %}" class="btn-outline-custom"><i class="bi bi-arrow-left"></i> Kembali</a>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card-dark">
+            <div class="section-title mb-4">Form Lokasi Rak</div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label-custom">Gudang</label>
+                        {{ form.warehouse }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-custom">Kode Rak</label>
+                        {{ form.code }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-custom">Baris</label>
+                        {{ form.row }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-custom">Kolom</label>
+                        {{ form.column }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-custom">Level</label>
+                        {{ form.level }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-custom">Kapasitas</label>
+                        {{ form.capacity }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label-custom">Deskripsi</label>
+                        {{ form.description }}
+                    </div>
+                    <div class="col-12 d-flex align-items-center gap-2">
+                        {{ form.is_active }}
+                        <label style="font-size:13px; color:var(--text-secondary);">Lokasi Aktif</label>
+                    </div>
+                </div>
+                <hr class="divider">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn-primary-custom"><i class="bi bi-check2"></i> Simpan</button>
+                    <a href="{% url 'warehouse:rack_location_list' %}" class="btn-outline-custom">Batal</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

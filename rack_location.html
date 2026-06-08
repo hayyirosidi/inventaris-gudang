@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Lokasi Rak - InvenTrack{% endblock %}
+{% block page_title %}Manajemen Lokasi Rak{% endblock %}
+
+{% block topbar_actions %}
+{% if request.user.profile.role == 'admin' or request.user.profile.role == 'staff' %}
+<a href="{% url 'warehouse:rack_location_create' %}" class="btn-primary-custom">
+    <i class="bi bi-plus-lg"></i> Tambah Rak
+</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Filter -->
+<div class="card-dark mb-4">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label-custom">Filter Gudang</label>
+            <select name="warehouse" class="form-select">
+                <option value="">Semua Gudang</option>
+                {% for wh in warehouses %}
+                <option value="{{ wh.pk }}" {% if warehouse_filter == wh.pk|stringformat:"s" %}selected{% endif %}>{{ wh.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn-primary-custom w-100"><i class="bi bi-filter"></i> Filter</button>
+        </div>
+    </form>
+</div>
+
+<div class="card-dark">
+    <table class="table-dark-custom">
+        <thead>
+            <tr><th>Kode Rak</th><th>Gudang</th><th>Baris</th><th>Kolom</th><th>Level</th><th>Kapasitas</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+            {% for rack in racks %}
+            <tr>
+                <td><span class="sku-tag">{{ rack.code }}</span></td>
+                <td style="color:var(--text-secondary);">{{ rack.warehouse.name }}</td>
+                <td style="color:var(--text-muted);">{{ rack.row }}</td>
+                <td style="color:var(--text-muted);">{{ rack.column }}</td>
+                <td style="color:var(--text-muted);">{{ rack.level }}</td>
+                <td>{{ rack.capacity|default:"-" }}</td>
+                <td>{% if rack.is_active %}<span class="badge-primary">Aktif</span>{% else %}<span class="badge-secondary">Nonaktif</span>{% endif %}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:40px;">Belum ada data lokasi rak</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
