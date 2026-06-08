@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard Admin - InvenTrack{% endblock %}
+{% block page_title %}Dashboard Admin{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'inventory:stock_in_create' %}" class="btn-primary-custom">
+    <i class="bi bi-plus-lg"></i> Barang Masuk
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Stats Row -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(0,212,170,0.1); color:var(--primary);">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <div class="stat-value">{{ total_products }}</div>
+            <div class="stat-label">Total Produk</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(255,107,53,0.1); color:var(--accent);">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="stat-value">{{ total_users }}</div>
+            <div class="stat-label">Total Pengguna</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card {% if low_stock_count > 0 %}highlight-warning{% endif %}">
+            <div class="stat-icon" style="background:rgba(255,184,0,0.1); color:var(--warning);">
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+            <div class="stat-value {% if low_stock_count > 0 %}text-warning{% endif %}">{{ low_stock_count }}</div>
+            <div class="stat-label">Stok Rendah</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card {% if reorder_count > 0 %}highlight-danger{% endif %}">
+            <div class="stat-icon" style="background:rgba(255,68,68,0.1); color:var(--danger);">
+                <i class="bi bi-bell"></i>
+            </div>
+            <div class="stat-value {% if reorder_count > 0 %}text-danger{% endif %}">{{ reorder_count }}</div>
+            <div class="stat-label">Perlu Reorder</div>
+        </div>
+    </div>
+</div>
+
+<!-- Inventory Value Banner -->
+<div class="card-dark mb-4" style="background: linear-gradient(135deg, rgba(0,212,170,0.05), rgba(0,168,136,0.05)); border-color: rgba(0,212,170,0.2);">
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            <div style="font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-muted);">Total Nilai Inventaris</div>
+            <div style="font-family:'Syne',sans-serif; font-weight:800; font-size:36px; color:var(--primary); margin-top:4px;">
+                Rp {{ total_inventory_value|floatformat:0 }}
+            </div>
+        </div>
+        <div style="font-size:48px; opacity:0.1; color:var(--primary);">
+            <i class="bi bi-currency-dollar"></i>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Recent Stock In -->
+    <div class="col-lg-6">
+        <div class="card-dark">
+            <div class="section-header">
+                <div class="section-title">Barang Masuk Terbaru</div>
+                <a href="{% url 'inventory:stock_in_list' %}" class="btn-outline-custom" style="font-size:11px; padding:5px 12px;">Lihat Semua</a>
+            </div>
+            <table class="table-dark-custom">
+                <thead>
+                    <tr>
+                        <th>No. PO</th>
+                        <th>Supplier</th>
+                        <th>Tanggal</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in recent_stock_in %}
+                    <tr>
+                        <td><span class="sku-tag">{{ item.po_number }}</span></td>
+                        <td>{{ item.supplier_name }}</td>
+                        <td style="font-size:11px; color:var(--text-muted);">{{ item.received_date|date:"d/m/Y" }}</td>
+                        <td><span class="badge-primary">{{ item.get_status_display }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Belum ada data</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Stock Out -->
+    <div class="col-lg-6">
+        <div class="card-dark">
+            <div class="section-header">
+                <div class="section-title">Barang Keluar Terbaru</div>
+                <a href="{% url 'inventory:stock_out_list' %}" class="btn-outline-custom" style="font-size:11px; padding:5px 12px;">Lihat Semua</a>
+            </div>
+            <table class="table-dark-custom">
+                <thead>
+                    <tr>
+                        <th>No. DO</th>
+                        <th>Customer</th>
+                        <th>Tanggal</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in recent_stock_out %}
+                    <tr>
+                        <td><span class="sku-tag">{{ item.do_number }}</span></td>
+                        <td>{{ item.customer_name }}</td>
+                        <td style="font-size:11px; color:var(--text-muted);">{{ item.issued_date|date:"d/m/Y" }}</td>
+                        <td><span class="badge-accent">{{ item.get_status_display }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Belum ada data</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Movements -->
+    <div class="col-12">
+        <div class="card-dark">
+            <div class="section-header">
+                <div class="section-title">Pergerakan Stok Terbaru</div>
+                <a href="{% url 'inventory:inventory_report' %}" class="btn-outline-custom" style="font-size:11px; padding:5px 12px;">Laporan Lengkap</a>
+            </div>
+            <table class="table-dark-custom">
+                <thead>
+                    <tr>
+                        <th>Waktu</th>
+                        <th>Produk</th>
+                        <th>Tipe</th>
+                        <th>Qty</th>
+                        <th>Sebelum</th>
+                        <th>Sesudah</th>
+                        <th>Ref</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mv in recent_movements %}
+                    <tr>
+                        <td style="font-size:11px; color:var(--text-muted);">{{ mv.created_at|date:"d/m H:i" }}</td>
+                        <td>
+                            <span class="sku-tag">{{ mv.product.sku }}</span>
+                            <span style="margin-left:8px; font-size:12px;">{{ mv.product.name|truncatechars:20 }}</span>
+                        </td>
+                        <td>
+                            {% if mv.movement_type == 'in' %}<span class="badge-primary">Masuk</span>
+                            {% elif mv.movement_type == 'out' %}<span class="badge-accent">Keluar</span>
+                            {% else %}<span class="badge-secondary">{{ mv.get_movement_type_display }}</span>{% endif %}
+                        </td>
+                        <td style="font-family:'Syne',sans-serif; font-weight:700;">
+                            {% if mv.movement_type == 'in' %}<span style="color:var(--primary)">+{{ mv.quantity }}</span>
+                            {% else %}<span style="color:var(--accent)">-{{ mv.quantity }}</span>{% endif %}
+                        </td>
+                        <td>{{ mv.stock_before }}</td>
+                        <td style="font-weight:600;">{{ mv.stock_after }}</td>
+                        <td><span class="sku-tag" style="font-size:10px;">{{ mv.reference_number|truncatechars:12 }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" style="text-align:center; color:var(--text-muted);">Belum ada pergerakan stok</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

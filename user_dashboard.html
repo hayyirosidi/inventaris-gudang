@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - InvenTrack{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(0,212,170,0.1); color:var(--primary);">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <div class="stat-value">{{ total_products }}</div>
+            <div class="stat-label">Total Produk</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-4">
+        <div class="stat-card" {% if reorder_count > 0 %} style="border-color:rgba(255,68,68,0.3);"{% endif %}>
+            <div class="stat-icon" style="background:rgba(255,68,68,0.1); color:var(--danger);">
+                <i class="bi bi-bell"></i>
+            </div>
+            <div class="stat-value"{% if reorder_count > 0 %} style="color:var(--danger);"{% endif %}>{{ reorder_count }}</div>
+            <div class="stat-label">Alert Reorder</div>
+        </div>
+    </div>
+</div>
+
+<div class="card-dark">
+    <div class="section-header">
+        <div class="section-title">Daftar Produk</div>
+        <a href="{% url 'products:product_list' %}" class="btn-outline-custom" style="font-size:11px; padding:5px 12px;">Lihat Semua</a>
+    </div>
+    <table class="table-dark-custom">
+        <thead>
+            <tr>
+                <th>SKU</th>
+                <th>Nama Produk</th>
+                <th>Kategori</th>
+                <th>Stok</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in products %}
+            <tr>
+                <td><span class="sku-tag">{{ p.sku }}</span></td>
+                <td>
+                    <a href="{% url 'products:product_detail' p.pk %}" style="color:var(--text-primary); text-decoration:none;">
+                        {{ p.name }}
+                    </a>
+                </td>
+                <td style="color:var(--text-muted); font-size:12px;">{{ p.category.name|default:"-" }}</td>
+                <td>
+                    {% if p.is_low_stock %}
+                        <span style="font-family:'Syne',sans-serif; font-weight:700; color:var(--danger);">
+                    {% elif p.needs_reorder %}
+                        <span style="font-family:'Syne',sans-serif; font-weight:700; color:var(--warning);">
+                    {% else %}
+                        <span style="font-family:'Syne',sans-serif; font-weight:700; color:var(--primary);">
+                    {% endif %}
+                        {{ p.current_stock|default_if_none:"0" }}
+                    </span>
+                    <span style="color:var(--text-muted); font-size:11px;"> {{ p.unit.abbreviation|default:"" }}</span>
+                </td>
+                <td>
+                    {% if p.is_low_stock %}<span class="badge-danger">Stok Rendah</span>
+                    {% elif p.needs_reorder %}<span class="badge-warning">Perlu Reorder</span>
+                    {% else %}<span class="badge-primary">Normal</span>{% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:32px;">Belum ada produk</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
