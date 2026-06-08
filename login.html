@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - InvenTrack</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00D4AA;
+            --bg-dark: #0A0E1A;
+            --bg-card: #111827;
+            --bg-card2: #1A2235;
+            --border: #1E2D45;
+            --text-primary: #E8EDF5;
+            --text-secondary: #7A8BA0;
+            --text-muted: #4A5568;
+        }
+
+        body {
+            font-family: 'DM Mono', monospace;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(0,212,170,0.06) 0%, transparent 70%);
+            top: -200px; right: -200px;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(255,107,53,0.04) 0%, transparent 70%);
+            bottom: -100px; left: -100px;
+            pointer-events: none;
+        }
+
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(30,45,69,0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(30,45,69,0.3) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .login-brand {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .brand-icon {
+            width: 56px; height: 56px;
+            background: linear-gradient(135deg, var(--primary), #00A888);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--bg-dark);
+            margin: 0 auto 12px;
+        }
+
+        .brand-name {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 26px;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        .brand-tagline {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 4px;
+        }
+
+        .login-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+        }
+
+        .card-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .card-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+
+        .form-group { margin-bottom: 18px; }
+
+        .form-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--bg-card2);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 12px 14px 12px 42px;
+            border-radius: 10px;
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
+        }
+
+        .form-input::placeholder { color: var(--text-muted); }
+
+        .btn-login {
+            width: 100%;
+            background: var(--primary);
+            color: var(--bg-dark);
+            border: none;
+            padding: 13px;
+            border-radius: 10px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .btn-login:hover {
+            background: #00A888;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(0, 212, 170, 0.2);
+        }
+
+        .error-text {
+            font-size: 11px;
+            color: #FF4444;
+            margin-top: 4px;
+        }
+
+        .alert-error {
+            background: rgba(255,68,68,0.08);
+            border: 1px solid rgba(255,68,68,0.3);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: #FF4444;
+            font-size: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .dots {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin-top: 24px;
+        }
+
+        .dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--border);
+        }
+
+        .dot:first-child { background: var(--primary); }
+    </style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="login-wrapper">
+    <div class="login-brand">
+        <div class="brand-icon">⬡</div>
+        <div class="brand-name">InvenTrack</div>
+        <div class="brand-tagline">Sistem Manajemen Inventaris Gudang</div>
+    </div>
+
+    <div class="login-card">
+        <div class="card-title">Masuk ke Akun</div>
+        <div class="card-subtitle">Gunakan kredensial yang telah diberikan admin</div>
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert-error">
+            <i class="bi bi-exclamation-circle"></i>
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if form.non_field_errors %}
+        <div class="alert-error">
+            <i class="bi bi-exclamation-circle"></i>
+            Username atau password salah.
+        </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <div class="input-wrapper">
+                    <i class="bi bi-person input-icon"></i>
+                    <input type="text" name="username" class="form-input" placeholder="Masukkan username" 
+                           value="{{ form.username.value|default:'' }}" required autofocus>
+                </div>
+                {% if form.username.errors %}
+                <div class="error-text">{{ form.username.errors|join:", " }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <div class="input-wrapper">
+                    <i class="bi bi-lock input-icon"></i>
+                    <input type="password" name="password" class="form-input" placeholder="Masukkan password" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login">
+                Masuk <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+        </form>
+
+        <div class="dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+    </div>
+
+    <div class="login-footer">
+        PT Maju Jaya &bull; Sistem Inventaris &bull; 2024/2025
+    </div>
+</div>
+</body>
+</html>
