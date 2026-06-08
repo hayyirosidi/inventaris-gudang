@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}Edit Produk - InvenTrack{% endblock %}
+{% block page_title %}Edit Produk{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'products:product_detail' product.pk %}" class="btn-outline-custom">
+    <i class="bi bi-arrow-left"></i> Kembali
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card-dark">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <span class="sku-tag" style="font-size:14px;">{{ product.sku }}</span>
+                <div class="section-title">{{ product.name }}</div>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label-custom">SKU *</label>
+                        {{ form.sku }}
+                        {% if form.sku.errors %}<div style="font-size:11px;color:#FF4444;margin-top:4px;">{{ form.sku.errors|join:", " }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label-custom">Nama Produk *</label>
+                        {{ form.name }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Kategori</label>
+                        {{ form.category }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label-custom">Satuan</label>
+                        {{ form.unit }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label-custom">Barcode</label>
+                        {{ form.barcode }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label-custom">Deskripsi</label>
+                        {{ form.description }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Gudang</label>
+                        {{ form.warehouse }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Lokasi Rak</label>
+                        {{ form.rack_location }}
+                    </div>
+                    <div class="col-12"><hr class="divider"><div class="section-title" style="font-size:14px;">Harga & Stok</div></div>
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Harga Beli (Rp)</label>
+                        {{ form.purchase_price }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Harga Jual (Rp)</label>
+                        {{ form.selling_price }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-custom">Stok Minimum</label>
+                        {{ form.minimum_stock }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-custom">Reorder Point</label>
+                        {{ form.reorder_point }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-custom">Qty Reorder</label>
+                        {{ form.reorder_quantity }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Tanggal Kadaluarsa</label>
+                        {{ form.expiry_date }}
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end pb-2">
+                        <div class="form-check">
+                            {{ form.is_active }}
+                            <label class="form-check-label ms-2" style="font-size:13px; color:var(--text-secondary);">Produk Aktif</label>
+                        </div>
+                    </div>
+                </div>
+                <hr class="divider">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn-primary-custom">
+                        <i class="bi bi-check2-circle"></i> Simpan Perubahan
+                    </button>
+                    <a href="{% url 'products:product_detail' product.pk %}" class="btn-outline-custom">Batal</a>
+                    {% if request.user.profile.role == 'admin' %}
+                    <form method="post" action="{% url 'products:delete_product' product.pk %}" class="ms-auto" onsubmit="return confirm('Yakin hapus produk ini?')">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-danger-custom"><i class="bi bi-trash"></i> Hapus</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Kategori - InvenTrack{% endblock %}
+{% block page_title %}Manajemen Kategori{% endblock %}
+
+{% block topbar_actions %}
+{% if request.user.profile.role == 'admin' or request.user.profile.role == 'staff' %}
+<a href="{% url 'products:add_category' %}" class="btn-primary-custom">
+    <i class="bi bi-plus-lg"></i> Tambah Kategori
+</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="card-dark">
+    <table class="table-dark-custom">
+        <thead>
+            <tr><th>Kode</th><th>Nama Kategori</th><th>Deskripsi</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+            {% for cat in categories %}
+            <tr>
+                <td><span class="sku-tag">{{ cat.code }}</span></td>
+                <td style="color:var(--text-primary); font-weight:500;">{{ cat.name }}</td>
+                <td style="font-size:12px; color:var(--text-muted);">{{ cat.description|default:"-"|truncatechars:50 }}</td>
+                <td>{% if cat.is_active %}<span class="badge-primary">Aktif</span>{% else %}<span class="badge-secondary">Nonaktif</span>{% endif %}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:32px;">Belum ada kategori</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

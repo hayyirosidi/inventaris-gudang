@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block title %}Master Produk - InvenTrack{% endblock %}
+{% block page_title %}Master Produk{% endblock %}
+
+{% block topbar_actions %}
+{% if request.user.profile.role == 'admin' or request.user.profile.role == 'staff' %}
+<a href="{% url 'products:add_product' %}" class="btn-primary-custom">
+    <i class="bi bi-plus-lg"></i> Tambah Produk
+</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Search & Filter -->
+<div class="card-dark mb-4">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-5">
+            <label class="form-label-custom">Cari Produk</label>
+            <div style="position:relative;">
+                <i class="bi bi-search" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-muted);"></i>
+                <input type="text" name="q" class="form-control" style="padding-left:36px;" 
+                       placeholder="Cari SKU, nama, atau lokasi rak..." value="{{ query }}">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label-custom">Kategori</label>
+            <select name="category" class="form-select">
+                <option value="">Semua Kategori</option>
+                {% for cat in categories %}
+                <option value="{{ cat.pk }}" {% if category_filter == cat.pk|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn-primary-custom w-100">
+                <i class="bi bi-filter"></i> Filter
+            </button>
+        </div>
+        <div class="col-md-2">
+            <a href="{% url 'products:product_list' %}" class="btn-outline-custom w-100">
+                <i class="bi bi-x"></i> Reset
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Stats -->
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <span style="font-size:12px; color:var(--text-muted);">
+        Menampilkan <strong style="color:var(--text-primary);">{{ total_products }}</strong> produk
+    </span>
+</div>
+
+<!-- Product Table -->
+<div class="card-dark">
+    <table class="table-dark-custom">
+        <thead>
+            <tr>
+                <th>SKU</th>
+                <th>Nama Produk</th>
+                <th>Kategori</th>
+                <th>Lokasi Rak</th>
+                <th>Stok</th>
+                <th>Min Stock</th>
+                <th>Harga Beli</th>
+                <th>Status</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td><span class="sku-tag">{{ product.sku }}</span></td>
+                <td>
+                    <a href="{% url 'products:product_detail' product.pk %}" style="color:var(--text-primary); text-decoration:none; font-weight:500;">
+                        {{ product.name }}
+                    </a>
+                </td>
+                <td style="font-size:12px; color:var(--text-muted);">{{ product.category.name|default:"-" }}</td>
+                <td>
+                    {% if product.rack_location %}
+                    <span class="sku-tag" style="color:var(--text-secondary); border-color:var(--border);">{{ product.rack_location }}</span>
+                    {% else %}<span style="color:var(--text-muted);">-</span>{% endif %}
+                </td>
+                <td>
+                    {% if product.current_stock|default:0 <= product.minimum_stock|default:0 %}
+                    <span style="font-family:'Syne',sans-serif; font-weight:700; font-size:15px; color:var(--danger);">
+                    {% elif product.needs_reorder %}
+                    <span style="font-family:'Syne',sans-serif; font-weight:700; font-size:15px; color:var(--warning);">
+                    {% else %}
+                    <span style="font-family:'Syne',sans-serif; font-weight:700; font-size:15px; color:var(--primary);">
+                    {% endif %}
+                        {{ product.current_stock }}
+                    </span>
+                </td>
+                <td style="color:var(--text-muted);">{{ product.minimum_stock }}</td>
+                <td style="font-size:12px;">Rp {{ product.purchase_price|floatformat:0 }}</td>
+                <td>
+                    {% if not product.is_active %}
+                        <span class="badge-secondary">Nonaktif</span>
+                    {% elif product.is_low_stock %}
+                        <span class="badge-danger badge-blink">Kritis</span>
+                    {% elif product.needs_reorder %}
+                        <span class="badge-warning">Reorder</span>
+                    {% else %}
+                        <span class="badge-primary">Normal</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="d-flex gap-1">
+                        <a href="{% url 'products:product_detail' product.pk %}" class="btn-outline-custom" style="padding:4px 10px; font-size:11px;">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        {% if request.user.profile.role == 'admin' or request.user.profile.role == 'staff' %}
+                        <a href="{% url 'products:edit_product' product.pk %}" class="btn-outline-custom" style="padding:4px 10px; font-size:11px;">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" style="text-align:center; padding:40px; color:var(--text-muted);">
+                    <i class="bi bi-inbox" style="font-size:32px; display:block; margin-bottom:8px;"></i>
+                    Tidak ada produk ditemukan
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
