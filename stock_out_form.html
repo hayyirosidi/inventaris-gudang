@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block title %}Catat Barang Keluar - InvenTrack{% endblock %}
+{% block page_title %}Catat Barang Keluar{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'inventory:stock_out_list' %}" class="btn-outline-custom">
+    <i class="bi bi-arrow-left"></i> Kembali
+</a>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.formset-row { background: var(--bg-card2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 10px; position: relative; }
+.delete-row { position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--danger); cursor: pointer; font-size: 16px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <form method="post">
+            {% csrf_token %}
+            <div class="card-dark mb-4">
+                <div class="section-title mb-3">Informasi Pengiriman ke Customer</div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Nomor DO *</label>
+                        {{ form.do_number }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Tanggal Keluar *</label>
+                        {{ form.issued_date }}
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label-custom">Nama Customer *</label>
+                        {{ form.customer_name }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-custom">Telepon Customer</label>
+                        {{ form.customer_phone }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label-custom">Alamat Customer</label>
+                        {{ form.customer_address }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Gudang</label>
+                        {{ form.warehouse }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label-custom">Catatan</label>
+                        {{ form.notes }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-dark">
+                <div class="section-header mb-3">
+                    <div class="section-title">Detail Item</div>
+                    <button type="button" class="btn-primary-custom" onclick="addFormsetRow()" style="font-size:12px; padding:6px 12px;">
+                        <i class="bi bi-plus"></i> Tambah Item
+                    </button>
+                </div>
+                {{ formset.management_form }}
+                <div id="formset-container">
+                    {% for f in formset %}
+                    <div class="formset-row" id="form-{{ forloop.counter0 }}">
+                        {% if forloop.counter0 > 0 %}
+                        <button type="button" class="delete-row" onclick="removeRow(this)"><i class="bi bi-x-circle-fill"></i></button>
+                        {% endif %}
+                        {{ f.id }}
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label-custom">Produk</label>
+                                {{ f.product }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-custom">Jumlah</label>
+                                {{ f.quantity }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-custom">Harga Jual (Rp)</label>
+                                {{ f.unit_price }}
+                            </div>
+                            {% if f.DELETE %}<div style="display:none;">{{ f.DELETE }}</div>{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mt-3 d-flex gap-2">
+                <button type="submit" class="btn-primary-custom">
+                    <i class="bi bi-check2-circle"></i> Simpan Barang Keluar
+                </button>
+                <a href="{% url 'inventory:stock_out_list' %}" class="btn-outline-custom">Batal</a>
+            </div>
+        </form>
+    </div>
+    <div class="col-lg-4">
+        <div class="card-dark" style="position:sticky; top:80px;">
+            <div class="section-title mb-3" style="font-size:14px;"><i class="bi bi-exclamation-triangle me-2" style="color:var(--warning);"></i>Perhatian</div>
+            <div style="font-size:12px; color:var(--text-muted); line-height:1.8;">
+                <p>1. Pastikan stok produk mencukupi sebelum menyimpan</p>
+                <p>2. Isi nomor DO sesuai dokumen pengiriman</p>
+                <p>3. Stok akan otomatis berkurang setelah disimpan</p>
+                <p>4. Transaksi tidak dapat dibatalkan setelah tersimpan</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let formCount = {{ formset.total_form_count }};
+function addFormsetRow() {
+    const container = document.getElementById('formset-container');
+    const totalForms = document.getElementById('id_items-TOTAL_FORMS');
+    const firstRow = container.querySelector('.formset-row');
+    const newRow = firstRow.cloneNode(true);
+    const idx = formCount;
+    newRow.id = `form-${idx}`;
+    newRow.innerHTML = newRow.innerHTML.replace(/items-\d+-/g, `items-${idx}-`);
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button'; delBtn.className = 'delete-row';
+    delBtn.innerHTML = '<i class="bi bi-x-circle-fill"></i>';
+    delBtn.onclick = function() { removeRow(this); };
+    newRow.appendChild(delBtn);
+    newRow.querySelectorAll('input:not([type=hidden]), select').forEach(el => { if(el.type !== 'checkbox') el.value = ''; });
+    container.appendChild(newRow);
+    totalForms.value = ++formCount;
+}
+function removeRow(btn) {
+    const row = btn.closest('.formset-row');
+    const deleteInput = row.querySelector('input[name*="-DELETE"]');
+    if (deleteInput) { deleteInput.checked = true; row.style.display = 'none'; } else { row.remove(); }
+}
+</script>
+{% endblock %}

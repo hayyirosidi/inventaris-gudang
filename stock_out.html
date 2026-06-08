@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Barang Keluar - InvenTrack{% endblock %}
+{% block page_title %}Pencatatan Barang Keluar{% endblock %}
+
+{% block topbar_actions %}
+{% if request.user.profile.role == 'admin' or request.user.profile.role == 'staff' %}
+<a href="{% url 'inventory:stock_out_create' %}" class="btn-primary-custom">
+    <i class="bi bi-plus-lg"></i> Catat Keluar
+</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="card-dark">
+    <table class="table-dark-custom">
+        <thead>
+            <tr><th>No. DO</th><th>Customer</th><th>Gudang</th><th>Tanggal</th><th>Dicatat Oleh</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+            {% for item in stock_outs %}
+            <tr>
+                <td><span class="sku-tag">{{ item.do_number }}</span></td>
+                <td>
+                    <div style="font-weight:500; color:var(--text-primary);">{{ item.customer_name }}</div>
+                    {% if item.customer_phone %}<div style="font-size:11px; color:var(--text-muted);">{{ item.customer_phone }}</div>{% endif %}
+                </td>
+                <td style="font-size:12px; color:var(--text-muted);">{{ item.warehouse.name|default:"-" }}</td>
+                <td style="font-size:12px; color:var(--text-muted);">{{ item.issued_date|date:"d M Y" }}</td>
+                <td style="font-size:12px; color:var(--text-muted);">{{ item.issued_by.get_full_name|default:item.issued_by.username }}</td>
+                <td>
+                    {% if item.status == 'approved' %}<span class="badge-accent">Disetujui</span>
+                    {% elif item.status == 'pending' %}<span class="badge-warning">Pending</span>
+                    {% else %}<span class="badge-danger">Ditolak</span>{% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:40px;">
+                <i class="bi bi-inbox" style="font-size:32px; display:block; margin-bottom:8px;"></i>
+                Belum ada data barang keluar
+            </td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

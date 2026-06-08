@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Peringatan Reorder - InvenTrack{% endblock %}
+{% block page_title %}Peringatan Stok & Reorder{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+    <div class="col-sm-6">
+        <div class="stat-card" style="border-color:rgba(255,68,68,0.4);">
+            <div class="stat-icon" style="background:rgba(255,68,68,0.1); color:var(--danger);"><i class="bi bi-bell-fill"></i></div>
+            <div class="stat-value" style="color:var(--danger);">{{ reorder_products|length }}</div>
+            <div class="stat-label">Perlu Reorder</div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="stat-card" style="border-color:rgba(255,184,0,0.4);">
+            <div class="stat-icon" style="background:rgba(255,184,0,0.1); color:var(--warning);"><i class="bi bi-exclamation-triangle"></i></div>
+            <div class="stat-value" style="color:var(--warning);">{{ low_products|length }}</div>
+            <div class="stat-label">Stok Rendah</div>
+        </div>
+    </div>
+</div>
+
+{% if reorder_products %}
+<div class="card-dark mb-4" style="border-color:rgba(255,68,68,0.3);">
+    <div class="section-title mb-3" style="color:var(--danger);">
+        <i class="bi bi-bell-fill me-2"></i>Produk Perlu Reorder
+    </div>
+    <table class="table-dark-custom">
+        <thead>
+            <tr><th>SKU</th><th>Nama Produk</th><th>Kategori</th><th>Stok Saat Ini</th><th>Reorder Point</th><th>Qty Reorder</th><th>Aksi</th></tr>
+        </thead>
+        <tbody>
+            {% for p in reorder_products %}
+            <tr>
+                <td><span class="sku-tag">{{ p.sku }}</span></td>
+                <td style="color:var(--text-primary); font-weight:500;">{{ p.name }}</td>
+                <td style="font-size:12px; color:var(--text-muted);">{{ p.category.name|default:"-" }}</td>
+                <td><span style="font-family:'Syne',sans-serif; font-weight:700; color:var(--danger);">{{ p.current_stock }}</span></td>
+                <td style="color:var(--text-muted);">{{ p.reorder_point }}</td>
+                <td><span class="badge-primary">{{ p.reorder_quantity }}</span></td>
+                <td>
+                    <a href="{% url 'products:product_detail' p.pk %}" class="btn-outline-custom" style="padding:4px 10px; font-size:11px;">
+                        <i class="bi bi-eye"></i> Detail
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{% if low_products %}
+<div class="card-dark" style="border-color:rgba(255,184,0,0.3);">
+    <div class="section-title mb-3" style="color:var(--warning);">
+        <i class="bi bi-exclamation-triangle me-2"></i>Produk Stok Rendah
+    </div>
+    <table class="table-dark-custom">
+        <thead>
+            <tr><th>SKU</th><th>Nama Produk</th><th>Stok Saat Ini</th><th>Stok Minimum</th><th>Gudang</th><th>Aksi</th></tr>
+        </thead>
+        <tbody>
+            {% for p in low_products %}
+            <tr>
+                <td><span class="sku-tag">{{ p.sku }}</span></td>
+                <td style="color:var(--text-primary); font-weight:500;">{{ p.name }}</td>
+                <td><span style="font-family:'Syne',sans-serif; font-weight:700; color:var(--warning);">{{ p.current_stock }}</span></td>
+                <td style="color:var(--text-muted);">{{ p.minimum_stock }}</td>
+                <td style="font-size:12px; color:var(--text-muted);">{{ p.warehouse.name|default:"-" }}</td>
+                <td>
+                    <a href="{% url 'products:product_detail' p.pk %}" class="btn-outline-custom" style="padding:4px 10px; font-size:11px;">
+                        <i class="bi bi-eye"></i> Detail
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{% if not reorder_products and not low_products %}
+<div class="card-dark text-center" style="padding:60px; border-color:rgba(0,212,170,0.3);">
+    <i class="bi bi-check-circle-fill" style="font-size:48px; color:var(--primary); display:block; margin-bottom:16px;"></i>
+    <div style="font-family:'Syne',sans-serif; font-size:20px; font-weight:700; color:var(--text-primary);">Semua Stok Aman</div>
+    <div style="font-size:13px; color:var(--text-muted); margin-top:8px;">Tidak ada produk yang memerlukan reorder saat ini</div>
+</div>
+{% endif %}
+{% endblock %}

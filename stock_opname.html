@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Stok Opname - InvenTrack{% endblock %}
+{% block page_title %}Stok Opname{% endblock %}
+
+{% block topbar_actions %}
+{% if request.user.profile.role == 'admin' or request.user.profile.role == 'staff' %}
+<a href="{% url 'inventory:stock_opname_create' %}" class="btn-primary-custom">
+    <i class="bi bi-plus-lg"></i> Buat Opname
+</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="card-dark">
+    <table class="table-dark-custom">
+        <thead>
+            <tr><th>No. Opname</th><th>Gudang</th><th>Tanggal</th><th>Petugas</th><th>Status</th><th>Aksi</th></tr>
+        </thead>
+        <tbody>
+            {% for op in opnames %}
+            <tr>
+                <td><span class="sku-tag">{{ op.opname_number }}</span></td>
+                <td style="color:var(--text-secondary);">{{ op.warehouse.name|default:"-" }}</td>
+                <td style="font-size:12px; color:var(--text-muted);">{{ op.opname_date|date:"d M Y" }}</td>
+                <td style="font-size:12px; color:var(--text-muted);">{{ op.conducted_by.get_full_name|default:op.conducted_by.username }}</td>
+                <td>
+                    {% if op.status == 'completed' %}<span class="badge-primary">Selesai</span>
+                    {% elif op.status == 'in_progress' %}<span class="badge-warning">Dalam Proses</span>
+                    {% elif op.status == 'draft' %}<span class="badge-secondary">Draft</span>
+                    {% else %}<span class="badge-danger">Dibatalkan</span>{% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'inventory:opname_detail' op.pk %}" class="btn-outline-custom" style="padding:4px 10px; font-size:11px;">
+                        <i class="bi bi-eye"></i> Detail
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:40px;">
+                <i class="bi bi-clipboard" style="font-size:32px; display:block; margin-bottom:8px;"></i>
+                Belum ada data stok opname
+            </td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

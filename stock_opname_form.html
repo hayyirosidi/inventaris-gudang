@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Buat Stok Opname - InvenTrack{% endblock %}
+{% block page_title %}Buat Stok Opname{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card-dark">
+            <div class="section-title mb-4">Form Stok Opname</div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label-custom">No. Opname *</label>
+                        {{ form.opname_number }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Tanggal *</label>
+                        {{ form.opname_date }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label-custom">Gudang</label>
+                        {{ form.warehouse }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label-custom">Catatan</label>
+                        {{ form.notes }}
+                    </div>
+                </div>
+                <hr class="divider">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn-primary-custom"><i class="bi bi-clipboard-plus"></i> Buat Opname</button>
+                    <a href="{% url 'inventory:stock_opname_list' %}" class="btn-outline-custom">Batal</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
